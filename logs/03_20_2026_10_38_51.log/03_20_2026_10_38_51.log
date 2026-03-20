@@ -1,0 +1,30 @@
+[ 2026-03-20 10:38:51,590 ] 24 root - INFO - Entered the data ingestion method
+[ 2026-03-20 10:38:51,590 ] 171 sklearn.datasets._california_housing - INFO - Downloading Cal. housing from https://ndownloader.figshare.com/files/5976036 to C:\Users\soumyajyotichatterj\scikit_learn_data
+[ 2026-03-20 10:38:54,397 ] 36 root - INFO - Dataset loaded: 20640 rows, 9 columns
+[ 2026-03-20 10:38:54,528 ] 43 root - INFO - Raw data saved
+[ 2026-03-20 10:38:54,686 ] 55 root - INFO - Train/test split completed and saved
+[ 2026-03-20 10:38:54,730 ] 63 root - INFO - Read train and test data
+[ 2026-03-20 10:38:54,735 ] 73 root - INFO - Feature engineering completed
+[ 2026-03-20 10:38:54,735 ] 46 root - INFO - Numerical columns: ['MedInc', 'HouseAge', 'AveRooms', 'AveBedrms', 'Population', 'AveOccup', 'Latitude', 'Longitude', 'rooms_per_household', 'bedrooms_ratio', 'population_per_household']
+[ 2026-03-20 10:38:54,737 ] 91 root - INFO - Applying preprocessing (impute + scale)
+[ 2026-03-20 10:38:54,756 ] 107 root - INFO - Preprocessor saved
+[ 2026-03-20 10:38:54,756 ] 26 root - INFO - Splitting train and test arrays
+[ 2026-03-20 10:38:54,765 ] 43 root - INFO - Training Linear Regression...
+[ 2026-03-20 10:38:54,778 ] 63 root - INFO - Linear Regression -> R²: 0.6478, RMSE: 0.2107, MAE: 0.1583
+[ 2026-03-20 10:38:54,778 ] 43 root - INFO - Training Ridge...
+[ 2026-03-20 10:38:57,446 ] 53 root - INFO - Ridge best params: {'alpha': 10.0}
+[ 2026-03-20 10:38:57,446 ] 63 root - INFO - Ridge -> R²: 0.6477, RMSE: 0.2107, MAE: 0.1584
+[ 2026-03-20 10:38:57,446 ] 43 root - INFO - Training Lasso...
+[ 2026-03-20 10:38:57,793 ] 53 root - INFO - Lasso best params: {'alpha': 0.001}
+[ 2026-03-20 10:38:57,878 ] 63 root - INFO - Lasso -> R²: 0.6461, RMSE: 0.2112, MAE: 0.1589
+[ 2026-03-20 10:38:57,878 ] 43 root - INFO - Training Random Forest...
+[ 2026-03-20 10:40:12,147 ] 53 root - INFO - Random Forest best params: {'max_depth': None, 'n_estimators': 200}
+[ 2026-03-20 10:40:33,598 ] 63 root - INFO - Random Forest -> R²: 0.8207, RMSE: 0.1503, MAE: 0.1030
+[ 2026-03-20 10:40:33,598 ] 43 root - INFO - Training Gradient Boosting...
+[ 2026-03-20 10:41:23,645 ] 53 root - INFO - Gradient Boosting best params: {'learning_rate': 0.1, 'max_depth': 5, 'n_estimators': 200}
+[ 2026-03-20 10:41:35,628 ] 63 root - INFO - Gradient Boosting -> R²: 0.8464, RMSE: 0.1391, MAE: 0.0978
+[ 2026-03-20 10:41:35,628 ] 43 root - INFO - Training XGBoost...
+[ 2026-03-20 10:41:41,543 ] 53 root - INFO - XGBoost best params: {'learning_rate': 0.1, 'max_depth': 7, 'n_estimators': 200}
+[ 2026-03-20 10:41:42,131 ] 63 root - INFO - XGBoost -> R²: 0.8556, RMSE: 0.1349, MAE: 0.0932
+[ 2026-03-20 10:41:42,131 ] 81 root - INFO - Best model: XGBoost with R²=0.8556
+[ 2026-03-20 10:41:42,145 ] 101 root - INFO - Best model saved

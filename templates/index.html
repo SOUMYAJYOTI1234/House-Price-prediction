@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>House Price Predictor | California Housing AI</title>
+    <meta name="description" content="Predict California house prices using advanced machine learning models. Built with XGBoost, Random Forest, and Gradient Boosting.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #0a0a1a;
+            --bg-secondary: #12122a;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --accent-1: #6c63ff;
+            --accent-2: #ff6584;
+            --accent-3: #43e97b;
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-muted: rgba(255, 255, 255, 0.4);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .bg-gradient {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0;
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(108, 99, 255, 0.15) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(255, 101, 132, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 80%, rgba(67, 233, 123, 0.08) 0%, transparent 50%);
+        }
+
+        .floating-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            animation: float 8s ease-in-out infinite;
+            z-index: 0;
+        }
+        .orb-1 { width: 400px; height: 400px; background: rgba(108,99,255,0.2); top: -100px; left: -100px; animation-delay: 0s; }
+        .orb-2 { width: 300px; height: 300px; background: rgba(255,101,132,0.15); bottom: -50px; right: -50px; animation-delay: -3s; }
+        .orb-3 { width: 200px; height: 200px; background: rgba(67,233,123,0.12); top: 50%; left: 50%; animation-delay: -5s; }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.05); }
+            66% { transform: translate(-20px, 20px) scale(0.95); }
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed; top: 0; left: 0; right: 0;
+            z-index: 100;
+            padding: 1.2rem 2rem;
+            background: rgba(10, 10, 26, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            margin-left: 2rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+        .nav-links a:hover { color: var(--text-primary); }
+
+        .nav-cta {
+            background: linear-gradient(135deg, var(--accent-1), #8b5cf6) !important;
+            color: white !important;
+            padding: 0.6rem 1.5rem;
+            border-radius: 50px;
+            transition: transform 0.3s, box-shadow 0.3s !important;
+        }
+        .nav-cta:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 20px rgba(108, 99, 255, 0.4);
+        }
+
+        /* Hero */
+        .hero {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 6rem 2rem 4rem;
+        }
+
+        .hero-content { max-width: 800px; }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            color: var(--accent-3);
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 0.8s ease-out 0.1s both;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2), var(--accent-3));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 2.5rem;
+            line-height: 1.7;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.8s ease-out 0.3s both;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-1), #8b5cf6);
+            color: white;
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(108, 99, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Features Section */
+        .features {
+            position: relative;
+            z-index: 1;
+            padding: 5rem 2rem;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            max-width: 500px;
+            margin: 0 auto 3rem;
+            font-size: 1rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s, border-color 0.3s;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(108, 99, 255, 0.3);
+        }
+
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1.2rem;
+        }
+        .icon-purple { background: rgba(108,99,255,0.15); }
+        .icon-pink { background: rgba(255,101,132,0.15); }
+        .icon-green { background: rgba(67,233,123,0.15); }
+
+        .feature-card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.6rem;
+        }
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* Models Section */
+        .models {
+            position: relative;
+            z-index: 1;
+            padding: 5rem 2rem;
+        }
+
+        .model-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .model-chip {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 14px;
+            padding: 1.2rem;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+        }
+        .model-chip:hover {
+            background: rgba(108,99,255,0.1);
+            border-color: rgba(108,99,255,0.3);
+            transform: scale(1.03);
+        }
+        .model-chip .model-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+        }
+        .model-chip .model-type {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        /* Footer */
+        footer {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 3rem 2rem;
+            border-top: 1px solid var(--glass-border);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Scroll animation */
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .animate-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-gradient"></div>
+    <div class="floating-orb orb-1"></div>
+    <div class="floating-orb orb-2"></div>
+    <div class="floating-orb orb-3"></div>
+
+    <nav>
+        <div class="logo">🏠 HousePriceAI</div>
+        <div class="nav-links">
+            <a href="#features">Features</a>
+            <a href="#models">Models</a>
+            <a href="/predictdata" class="nav-cta">Predict Now →</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">
+                🤖 Powered by Machine Learning
+            </div>
+            <h1>
+                Predict California<br>
+                <span class="gradient-text">House Prices</span> with AI
+            </h1>
+            <p>
+                Advanced machine learning models trained on California Housing Census data.
+                Get instant, accurate price predictions using 6 state-of-the-art models
+                with intelligent auto-selection.
+            </p>
+            <div class="hero-buttons">
+                <a href="/predictdata" class="btn-primary" id="predict-btn">🔮 Start Predicting</a>
+                <a href="#features" class="btn-secondary">Learn More ↓</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="features" id="features">
+        <h2 class="section-title animate-on-scroll">Why This Model?</h2>
+        <p class="section-subtitle animate-on-scroll">Built with production-grade ML engineering practices</p>
+
+        <div class="features-grid">
+            <div class="feature-card animate-on-scroll">
+                <div class="feature-icon icon-purple">📊</div>
+                <h3>20,640+ Data Points</h3>
+                <p>Trained on the comprehensive California Housing Census dataset with rich geographic and demographic features.</p>
+            </div>
+            <div class="feature-card animate-on-scroll">
+                <div class="feature-icon icon-pink">🧠</div>
+                <h3>6 ML Models Compared</h3>
+                <p>Linear, Ridge, Lasso, Random Forest, Gradient Boosting, and XGBoost — the best model is automatically selected.</p>
+            </div>
+            <div class="feature-card animate-on-scroll">
+                <div class="feature-icon icon-green">⚙️</div>
+                <h3>Hyperparameter Tuning</h3>
+                <p>Every model is fine-tuned using GridSearchCV with cross-validation for optimal performance.</p>
+            </div>
+            <div class="feature-card animate-on-scroll">
+                <div class="feature-icon icon-purple">🔧</div>
+                <h3>Feature Engineering</h3>
+                <p>Smart derived features like rooms per household, bedroom ratio, and population density for better accuracy.</p>
+            </div>
+            <div class="feature-card animate-on-scroll">
+                <div class="feature-icon icon-pink">🚀</div>
+                <h3>Production Ready</h3>
+                <p>Modular architecture with separate components for ingestion, transformation, and training. Docker-ready.</p>
+            </div>
+            <div class="feature-card animate-on-scroll">
+                <div class="feature-icon icon-green">📈</div>
+                <h3>High Accuracy</h3>
+                <p>Achieves R² scores above 0.80 with log-transformed predictions and ensemble methods.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="models" id="models">
+        <h2 class="section-title animate-on-scroll">Models Under the Hood</h2>
+        <p class="section-subtitle animate-on-scroll">The best model is automatically selected based on R² score</p>
+
+        <div class="model-list animate-on-scroll">
+            <div class="model-chip">
+                <div class="model-name">Linear Regression</div>
+                <div class="model-type">Baseline</div>
+            </div>
+            <div class="model-chip">
+                <div class="model-name">Ridge</div>
+                <div class="model-type">L2 Regularization</div>
+            </div>
+            <div class="model-chip">
+                <div class="model-name">Lasso</div>
+                <div class="model-type">L1 Regularization</div>
+            </div>
+            <div class="model-chip">
+                <div class="model-name">Random Forest</div>
+                <div class="model-type">Ensemble</div>
+            </div>
+            <div class="model-chip">
+                <div class="model-name">Gradient Boosting</div>
+                <div class="model-type">Boosting</div>
+            </div>
+            <div class="model-chip">
+                <div class="model-name">XGBoost</div>
+                <div class="model-type">Advanced Boosting</div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>Built by Soumyajyoti • California Housing Price Prediction • 2024</p>
+    </footer>
+
+    <script>
+        // Scroll animation observer
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.animate-on-scroll').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
